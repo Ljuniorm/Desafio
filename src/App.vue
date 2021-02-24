@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class="router">
     <AppBar />
-    <router-view />
+    <router-view class="router" />
   </div>
 </template>
 
@@ -20,5 +20,11 @@ export default {
   scroll-behavior: smooth;
   font-family: "Montserrat", Oswald, Roboto, sans-serif;
   margin: 0;
+  background-color: #f2f2f2;
+}
+
+i,
+img {
+  background-color: transparent;
 }
 </style>

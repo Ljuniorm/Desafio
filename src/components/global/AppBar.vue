@@ -3,8 +3,9 @@
     <img img src="../../assets/logo.png" alt="" />
 
     <input
+      v-model="city"
       type="text"
-      class="searchTerm"
+      class="searchInput"
       placeholder="Busque por uma cidade..."
     />
 
@@ -15,13 +16,30 @@
 </template>
 
 <script>
-import { getGeolocation } from "../../utils/utils";
+import { getForecast, getGeolocation } from "../../utils/utils";
 export default {
+  data() {
+    return {
+      city: "",
+      coordinates: null,
+    };
+  },
+
   methods: {
-    searchCity() {
-      getGeolocation("florianopolis").then((response) => {
-        console.log(response);
+    async searchCity() {
+      await getGeolocation(this.city).then((response) => {
+        console.log(response.data);
+        this.coordinates = response.data.results[0].geometry.location;
       });
+      this.getForecast();
+    },
+
+    getForecast() {
+      getForecast(this.coordinates.lat, this.coordinates.lng).then(
+        (response) => {
+          console.log(response.data);
+        }
+      );
     },
   },
 };
@@ -30,7 +48,7 @@ export default {
 <style scoped>
 .appBar {
   background-color: #c4dfe6;
-  height: 80px;
+  height: 90px;
   box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.2);
   display: flex;
   justify-content: center;
@@ -38,7 +56,7 @@ export default {
 }
 
 img {
-  margin-right: 50px;
+  margin: 0px 30px;
 }
 
 body {
@@ -46,7 +64,7 @@ body {
   font-family: "Open Sans", sans-serif;
 }
 
-.searchTerm {
+.searchInput {
   width: 100%;
   border: 3px solid #00b4cc;
   border-right: none;
@@ -57,7 +75,7 @@ body {
   outline: none;
 }
 
-.searchTerm:focus {
+.searchInput:focus {
   color: #00b4cc;
 }
 
@@ -71,5 +89,6 @@ body {
   border-radius: 0 5px 5px 0;
   cursor: pointer;
   font-size: 20px;
+  margin-right: 30px;
 }
 </style>
