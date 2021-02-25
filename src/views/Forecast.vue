@@ -262,63 +262,6 @@ export default {
 </script>
 
 <style scoped>
-@media (max-width: 780px) {
-  .divBoxes {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .lineAlert {
-    height: 200px !important;
-  }
-
-  .column {
-    height: 100px !important;
-    display: flex;
-  }
-
-  .rowTitle {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-
-  button {
-    margin: 0px !important;
-  }
-
-  h3 {
-    margin: 20px;
-  }
-
-  .card {
-    height: 1600px !important;
-  }
-
-  .row {
-    padding: 0 !important;
-  }
-
-  h1 {
-    font-size: 1.3em !important;
-  }
-
-  .contentCurrent {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  i {
-    margin-left: 10px;
-  }
-
-  .mainImg {
-    margin-right: 5px !important;
-  }
-}
-
 .container {
   margin: 20px 30px;
   height: 830px;
@@ -441,5 +384,64 @@ img {
 
 .mainImg {
   margin-right: 30px;
+}
+
+@media (max-width: 780px) {
+  .divBoxes {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .lineAlert {
+    height: 200px !important;
+    padding: 10px !important;
+  }
+
+  .column {
+    height: 100px !important;
+    display: flex;
+  }
+
+  .rowTitle {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  button {
+    margin: 0px !important;
+  }
+
+  h3 {
+    margin: 20px;
+  }
+
+  .card {
+    height: 1600px !important;
+    padding: 10px !important;
+  }
+
+  .row {
+    padding: 0 !important;
+  }
+
+  h1 {
+    font-size: 1.3em !important;
+  }
+
+  .contentCurrent {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  i {
+    margin-left: 10px;
+  }
+
+  .mainImg {
+    margin-right: 5px !important;
+  }
 }
 </style>
