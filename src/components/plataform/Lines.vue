@@ -1,6 +1,8 @@
 <template>
-  <div>
-    <span><i :class="icon"></i>{{ title }}</span>
+  <div class="row">
+    <div>
+      <i :class="icon" class="icon"></i> <span>{{ title }}</span>
+    </div>
     <b
       >{{ formatNumber(value) }} <b>{{ sufix }}</b></b
     >
@@ -25,7 +27,7 @@ export default {
 </script>
 
 <style  scoped>
-div {
+.row {
   padding: 20px 20px;
   border-bottom: 1px solid #f2f2f2;
   display: flex;
@@ -36,8 +38,8 @@ span {
   font-weight: bolder;
 }
 
-i {
-  margin-right: 15px;
-  color: #c4dfe6;
+.icon {
+  margin-right: 15px !important;
+  color: #c4dfe6 !important;
 }
 </style>

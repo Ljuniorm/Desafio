@@ -205,11 +205,6 @@ export default {
     async getInfo() {
       this.$store.commit("updateInfos", await Storage.getItem(INFOS_CITY));
       this.currentCelsius = this.celsius;
-      console.log("forecast", this.forecast);
-      console.log("geolocation", this.geolocation);
-      console.log("celsius", this.celsius);
-      console.log("days", this.days);
-      console.log("alerts", this.alerts);
       this.getDate();
     },
 
