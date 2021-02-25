@@ -10,6 +10,11 @@ const routes = [
     name: 'Forecast',
     component: () => import('../views/Forecast.vue')
   },
+  {
+    path: '/',
+    name: 'Coordinates',
+    component: () => import('../views/Coordinates.vue')
+  },
   
 ]
 

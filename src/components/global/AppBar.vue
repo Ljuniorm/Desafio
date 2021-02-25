@@ -6,9 +6,16 @@
       v-model="city"
       type="text"
       class="searchInput"
+      list="datalistOptions"
       placeholder="Busque por uma cidade..."
       @keypress.enter="searchCity"
     />
+
+    <datalist id="datalistOptions">
+      <option v-for="(item, i) in historicSearch" :key="i">
+        {{ item.name }}
+      </option>
+    </datalist>
 
     <button @click="searchCity" type="submit" class="searchButton">
       <i class="fas fa-search"></i>
@@ -23,7 +30,7 @@ import {
   kelvinInCelsius,
 } from "../../utils/utils";
 import { Storage } from "../../localStorage";
-import { INFOS_CITY } from "../../localStorage/storageKeys";
+import { INFOS_CITY, OPTIONS } from "../../localStorage/storageKeys";
 
 export default {
   data() {
@@ -31,16 +38,37 @@ export default {
       city: "",
       coordinates: null,
       geolocation: null,
+      historicSearch: [],
     };
+  },
+
+  created() {
+    this.getHistoric();
   },
 
   methods: {
     async searchCity() {
       if (this.$route.params.city === this.city) return;
+      for (let i = 0; i < this.historicSearch.length; i++) {
+        if (this.historicSearch[i].name === this.city) {
+          this.coordinates = {
+            lat: this.historicSearch[i].lat,
+            lng: this.historicSearch[i].lng,
+          };
+          return this.getForecast();
+        }
+      }
       await getGeolocation(this.city).then(async (response) => {
         this.coordinates = response.data.results[0].geometry.location;
         this.geolocation = response.data;
       });
+      this.historicSearch.push({
+        name: this.city,
+        lat: this.coordinates.lat,
+        lng: this.coordinates.lng,
+        city: this.geolocation.results[0].formatted_address,
+      });
+      await Storage.setItem(OPTIONS, this.historicSearch);
       this.getForecast();
     },
 
@@ -49,28 +77,24 @@ export default {
         async (response) => {
           this.$store.commit("updateInfos", {
             forecast: response.data,
-            geolocation: this.geolocation,
             celsius: kelvinInCelsius(response.data.current.temp),
             days: response.data.daily.map((day) => {
-              const dateFormated = this.unixToDate(day.dt);
-
               return {
                 ...day,
-                date: dateFormated,
+                date: this.unixToDate(day.dt),
               };
             }),
             alerts: response.data.alerts,
             current: response.data.current,
           });
+
           await Storage.setItem(INFOS_CITY, {
             forecast: response.data,
-            geolocation: this.geolocation,
             celsius: kelvinInCelsius(response.data.current.temp),
             days: response.data.daily.map((day) => {
-              const dateFormated = this.unixToDate(day.dt);
               return {
                 ...day,
-                date: { dateFormated },
+                date: this.unixToDate(day.dt),
               };
             }),
             alerts: response.data.alerts,
@@ -79,6 +103,11 @@ export default {
         }
       );
       this.$router.push(`/forecast/${this.city}`);
+    },
+
+    async getHistoric() {
+      const historic = await Storage.getItem(OPTIONS);
+      if (historic) this.historicSearch = historic;
     },
 
     unixToDate(unix) {
@@ -118,7 +147,7 @@ body {
   border-right: none;
   padding: 5px;
   height: 20px;
-  width: 700px;
+  width: 300px;
   border-radius: 5px 0 0 5px;
   outline: none;
 }

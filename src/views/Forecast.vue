@@ -9,11 +9,7 @@
       <div class="rowTitle">
         <h3>
           Previsão de {{ day }} de {{ months[month] }} de {{ year }}
-          {{
-            geolocation && geolocation.results
-              ? geolocation.results[0].formatted_address.split(",")[0]
-              : ""
-          }}
+          {{ cityName }}
           <i class="fas fa-map-marker-alt"></i>
         </h3>
         <button @click="currentTemp">Condições Atuais</button>
@@ -150,8 +146,8 @@
 <script>
 import { mapState } from "vuex";
 import { Storage } from "../localStorage";
-import { INFOS_CITY } from "../localStorage/storageKeys";
-import Lines from "../components/plataform/Lines";
+import { INFOS_CITY, OPTIONS } from "../localStorage/storageKeys";
+import Lines from "../components/platform/Lines";
 import { kelvinInCelsius } from "../utils/utils";
 
 export default {
@@ -177,12 +173,8 @@ export default {
       day: "",
       month: "",
       year: "",
-      dayToShow: "",
-      rain: false,
-      thunder: false,
-      sun: false,
       currentCelsius: null,
-      showCelsius: true,
+      cityName: "",
     };
   },
 
@@ -190,10 +182,15 @@ export default {
     this.getInfo();
   },
 
+  watch: {
+    forecast() {
+      this.getHistoric();
+    },
+  },
+
   computed: {
     ...mapState({
       forecast: (state) => state.infos.forecast,
-      geolocation: (state) => state.infos.geolocation,
       celsius: (state) => state.infos.celsius,
       days: (state) => state.infos.days,
       alerts: (state) => state.infos.alerts,
@@ -205,6 +202,8 @@ export default {
     async getInfo() {
       this.$store.commit("updateInfos", await Storage.getItem(INFOS_CITY));
       this.currentCelsius = this.celsius;
+      this.getHistoric();
+      console.log("name", this.nameCity);
       this.getDate();
     },
 
@@ -252,30 +251,23 @@ export default {
     toCelsius(temp) {
       return kelvinInCelsius(temp);
     },
+
+    async getHistoric() {
+      const historic = await Storage.getItem(OPTIONS);
+      if (historic)
+        historic.forEach((item) => {
+          if (item.name === this.$route.params.city) {
+            this.cityName = item.city;
+          }
+        });
+    },
   },
 };
 </script>
 
 <style scoped>
-.container {
-  margin: 20px 30px;
-  height: 830px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
 .divBoxes {
   display: flex;
-}
-
-.card {
-  background-color: white;
-  height: 700px;
-  width: 95%;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2), 0 2px 4px 0 rgba(0, 0, 0, 0.19);
-  border-radius: 5px;
-  margin: 20px;
 }
 
 .lineAlert {
@@ -390,6 +382,7 @@ img {
   .lineAlert {
     height: 200px !important;
     padding: 10px !important;
+    font-size: 0.8em;
   }
 
   .column {

@@ -29,6 +29,22 @@ export default {
   }
 }
 
+.container {
+  margin: 20px 30px;
+  height: 830px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.card {
+  background-color: white;
+  height: 700px;
+  width: 95%;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2), 0 2px 4px 0 rgba(0, 0, 0, 0.19);
+  border-radius: 5px;
+  margin: 20px;
+}
+
 .router {
   background-color: #f2f2f2;
 }

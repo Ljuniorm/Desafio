@@ -1,5 +1,5 @@
 <template>
-  <div class="row">
+  <div class="rowLine">
     <div>
       <i :class="icon" class="icon"></i> <span>{{ title }}</span>
     </div>
@@ -27,7 +27,7 @@ export default {
 </script>
 
 <style  scoped>
-.row {
+.rowLine {
   padding: 20px 20px;
   border-bottom: 1px solid #f2f2f2;
   display: flex;
@@ -39,7 +39,7 @@ span {
 }
 
 .icon {
-  margin-right: 15px !important;
-  color: #c4dfe6 !important;
+  margin-right: 15px;
+  color: #c4dfe6;
 }
 </style>
