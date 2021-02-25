@@ -20,7 +20,7 @@ export default new Vuex.Store({
       state.infos.geolocation = payload && payload.geolocation
       state.infos.celsius = payload && payload.celsius
       state.infos.days = payload && payload.days
-      state.infos.days.pop()
+      // state.infos.days.shift()
       state.infos.alerts = payload && payload.alerts
       state.infos.current = payload && payload.current
     },

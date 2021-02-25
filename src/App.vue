@@ -23,6 +23,12 @@ export default {
   margin: 0;
 }
 
+@media (max-width: 780px) {
+  .router {
+    height: 1600px;
+  }
+}
+
 .router {
   background-color: #f2f2f2;
 }

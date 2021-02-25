@@ -46,6 +46,7 @@
           src="../assets/nevando.png"
           class="mainImg"
         />
+
         <h1 v-if="!celsius.max">{{ celsius }}</h1>
         <p v-if="!celsius.max">°C</p>
         <h1 class="maxTemp" v-if="celsius.max">
@@ -97,31 +98,26 @@
             v-if="forecast.current.weather[0].main === 'Clear'"
             img
             src="../assets/clear.png"
-            class="mainImg"
           />
           <img
             v-if="forecast.current.weather[0].main === 'Rain'"
             img
             src="../assets/rain.png"
-            class="mainImg"
           />
           <img
             v-if="forecast.current.weather[0].main === 'Thunderstorm'"
             img
             src="../assets/thunder.png"
-            class="mainImg"
           />
           <img
             v-if="forecast.current.weather[0].main === 'Clouds'"
             img
             src="../assets/cloud.png"
-            class="mainImg"
           />
           <img
             v-if="forecast.current.weather[0].main === 'Snow'"
             img
             src="../assets/nevando.png"
-            class="mainImg"
           />
 
           <div class="row">
@@ -325,6 +321,48 @@ export default {
 
 .divBoxes {
   display: flex;
+}
+
+@media (max-width: 780px) {
+  .divBoxes {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .lineAlert {
+    height: 200px !important;
+  }
+
+  .column {
+    height: 100px !important;
+    display: flex;
+  }
+
+  .card {
+    height: 1600px !important;
+  }
+
+  .row {
+    padding: 0 !important;
+  }
+
+  h1 {
+    font-size: 1.3em !important;
+  }
+
+  .contentCurrent {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  i {
+    margin-left: 10px;
+  }
+
+  .mainImg {
+    margin-right: 5px !important;
+  }
 }
 
 .card {
