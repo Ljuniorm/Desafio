@@ -6,9 +6,9 @@ Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/',
-    name: 'Main',
-    component: () => import('../views/Main.vue')
+    path: '/forecast/:city',
+    name: 'Forecast',
+    component: () => import('../views/Forecast.vue')
   },
   
 ]

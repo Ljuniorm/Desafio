@@ -5,5 +5,9 @@ import axios from 'axios'
     }
 
     export function getForecast(lat,lon) {
-        return axios.get(`https://pro.openweathermap.org/data/2.5/forecast/hourly?lat=${lat}&lon=${lon}&appid=2abccc37894bfee455ecf31758b176eb`);
+        return axios.get(`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&appid=f43aec1ea7b3723041005d7a2d9b2029`);
+    }
+
+    export function kelvinInCelsius(kelvin) {
+        return (kelvin - 273.15).toFixed(0);
     }

@@ -1,2 +1,3 @@
-export const USER_AUTH = "USER_AUTH";
+export const INFOS_CITY = "INFOS_CITY";
+
 

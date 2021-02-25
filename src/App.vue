@@ -2,6 +2,7 @@
   <div class="router">
     <AppBar />
     <router-view class="router" />
+    <footer></footer>
   </div>
 </template>
 
@@ -12,7 +13,7 @@ export default {
 };
 </script>
 
-<style>
+<style >
 * {
   -webkit-text-size-adjust: none;
   -webkit-font-smoothing: antialiased;
@@ -20,7 +21,15 @@ export default {
   scroll-behavior: smooth;
   font-family: "Montserrat", Oswald, Roboto, sans-serif;
   margin: 0;
+}
+
+.router {
   background-color: #f2f2f2;
+}
+
+footer {
+  height: 8px;
+  color: #c4dfe6;
 }
 
 i,

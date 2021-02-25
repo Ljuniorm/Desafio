@@ -1,5 +1,5 @@
 <template>
-  <div class="appBar wrap">
+  <div class="appBar">
     <img img src="../../assets/logo.png" alt="" />
 
     <input
@@ -7,6 +7,7 @@
       type="text"
       class="searchInput"
       placeholder="Busque por uma cidade..."
+      @keypress.enter="searchCity"
     />
 
     <button @click="searchCity" type="submit" class="searchButton">
@@ -16,30 +17,55 @@
 </template>
 
 <script>
-import { getForecast, getGeolocation } from "../../utils/utils";
+import {
+  getForecast,
+  getGeolocation,
+  kelvinInCelsius,
+} from "../../utils/utils";
+import { Storage } from "../../localStorage";
+import { INFOS_CITY } from "../../localStorage/storageKeys";
+
 export default {
   data() {
     return {
       city: "",
       coordinates: null,
+      geolocation: null,
     };
   },
 
   methods: {
     async searchCity() {
-      await getGeolocation(this.city).then((response) => {
-        console.log(response.data);
+      if (this.$route.params.city === this.city) return;
+      await getGeolocation(this.city).then(async (response) => {
         this.coordinates = response.data.results[0].geometry.location;
+        this.geolocation = response.data;
       });
       this.getForecast();
     },
 
-    getForecast() {
+    async getForecast() {
       getForecast(this.coordinates.lat, this.coordinates.lng).then(
-        (response) => {
-          console.log(response.data);
+        async (response) => {
+          this.$store.commit("updateInfos", {
+            forecast: response.data,
+            geolocation: this.geolocation,
+            celsius: kelvinInCelsius(response.data.current.temp),
+            days: response.data.daily,
+            alerts: response.data.alerts,
+            current: response.data.current,
+          });
+          await Storage.setItem(INFOS_CITY, {
+            forecast: response.data,
+            geolocation: this.geolocation,
+            celsius: kelvinInCelsius(response.data.current.temp),
+            days: response.data.daily,
+            alerts: response.data.alerts,
+            current: response.data.current,
+          });
         }
       );
+      this.$router.push(`/forecast/${this.city}`);
     },
   },
 };
@@ -90,5 +116,6 @@ body {
   cursor: pointer;
   font-size: 20px;
   margin-right: 30px;
+  outline: none;
 }
 </style>
