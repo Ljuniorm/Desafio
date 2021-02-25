@@ -51,7 +51,14 @@ export default {
             forecast: response.data,
             geolocation: this.geolocation,
             celsius: kelvinInCelsius(response.data.current.temp),
-            days: response.data.daily,
+            days: response.data.daily.map((day) => {
+              const dateFormated = this.unixToDate(day.dt);
+
+              return {
+                ...day,
+                date: dateFormated,
+              };
+            }),
             alerts: response.data.alerts,
             current: response.data.current,
           });
@@ -59,13 +66,28 @@ export default {
             forecast: response.data,
             geolocation: this.geolocation,
             celsius: kelvinInCelsius(response.data.current.temp),
-            days: response.data.daily,
+            days: response.data.daily.map((day) => {
+              const dateFormated = this.unixToDate(day.dt);
+              return {
+                ...day,
+                date: { dateFormated },
+              };
+            }),
             alerts: response.data.alerts,
             current: response.data.current,
           });
         }
       );
       this.$router.push(`/forecast/${this.city}`);
+    },
+
+    unixToDate(unix) {
+      const date = new Date(unix * 1000);
+      return {
+        day: date.getDate(),
+        month: date.getMonth(),
+        year: date.getFullYear(),
+      };
     },
   },
 };

@@ -29,7 +29,7 @@ div {
   padding: 20px 20px;
   border-bottom: 1px solid #f2f2f2;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
 }
 
 span {

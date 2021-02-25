@@ -6,15 +6,18 @@
     </div>
 
     <div v-if="forecast && current" class="card">
-      <h3 class="title">
-        Previsão de {{ dayToShow }} de {{ months[month] }} de {{ year }}
-        {{
-          geolocation && geolocation.results
-            ? geolocation.results[0].formatted_address.split(",")[0]
-            : ""
-        }}
-        <i class="fas fa-map-marker-alt"></i>
-      </h3>
+      <div class="rowTitle">
+        <h3>
+          Previsão de {{ day }} de {{ months[month] }} de {{ year }}
+          {{
+            geolocation && geolocation.results
+              ? geolocation.results[0].formatted_address.split(",")[0]
+              : ""
+          }}
+          <i class="fas fa-map-marker-alt"></i>
+        </h3>
+        <button @click="currentTemp">Condições Atuais</button>
+      </div>
       <div class="contentCurrent">
         <img
           v-if="current.weather[0].main === 'Clear'"
@@ -35,7 +38,10 @@
           class="mainImg"
         />
         <img
-          v-if="current.weather[0].main === 'Clouds'"
+          v-if="
+            current.weather[0].main === 'Clouds' ||
+            current.weather[0].main === 'Mist'
+          "
           img
           src="../assets/cloud.png"
           class="mainImg"
@@ -85,55 +91,15 @@
       />
       <div class="divBoxes">
         <div
-          @click="selectDay(forecast.current, day, null)"
-          class="column columnSelected"
-        >
-          <div class="row">
-            <span>dia </span>
-            <b>
-              {{ day }}
-            </b>
-          </div>
-          <img
-            v-if="forecast.current.weather[0].main === 'Clear'"
-            img
-            src="../assets/clear.png"
-          />
-          <img
-            v-if="forecast.current.weather[0].main === 'Rain'"
-            img
-            src="../assets/rain.png"
-          />
-          <img
-            v-if="forecast.current.weather[0].main === 'Thunderstorm'"
-            img
-            src="../assets/thunder.png"
-          />
-          <img
-            v-if="forecast.current.weather[0].main === 'Clouds'"
-            img
-            src="../assets/cloud.png"
-          />
-          <img
-            v-if="forecast.current.weather[0].main === 'Snow'"
-            img
-            src="../assets/nevando.png"
-          />
-
-          <div class="row">
-            <b>{{ toCelsius(forecast.current.temp) }}°C</b>
-          </div>
-        </div>
-        <div
           v-for="(item, index) in days"
           :key="index"
           class="column"
-          @click="selectDay(item, day, index)"
+          @click="selectDay(item, item.date, index)"
         >
           <div class="row">
-            <span>dia </span>
             <b>
-              {{ day + index + 1 }}
+              {{ item.date.day }}
+              {{ months[item.date.month] }}
             </b>
           </div>
           <img
@@ -152,7 +118,10 @@
             src="../assets/thunder.png"
           />
           <img
-            v-if="item.weather[0].main === 'Clouds'"
+            v-if="
+              item.weather[0].main === 'Clouds' ||
+              item.weather[0].main === 'Mist'
+            "
             img
             src="../assets/cloud.png"
           />
@@ -161,6 +130,7 @@
             img
             src="../assets/nevando.png"
           />
+
           <div class="row">
             <b class="maxTemp">
               <i class="fas fa-long-arrow-alt-up"></i>
@@ -190,18 +160,18 @@ export default {
   data() {
     return {
       months: [
-        "Janeiro",
-        "Fevereiro",
-        "Março",
-        "Abril",
-        "Maio",
-        "Junho",
-        "Julho",
-        "Agosto",
-        "Setembro",
-        "Outubro",
-        "Novembro",
-        "Dezembro",
+        "Jan",
+        "Fev",
+        "Mar",
+        "Abr",
+        "Mai",
+        "Jun",
+        "Jul",
+        "Ago",
+        "Set",
+        "Out",
+        "Nov",
+        "Dez",
       ],
       city: "",
       day: "",
@@ -218,21 +188,6 @@ export default {
 
   created() {
     this.getInfo();
-  },
-
-  watch: {
-    geolocation() {
-      const selected = document.getElementsByClassName("column");
-      console.log(
-        "🚀 ~ file: Forecast.vue ~ line 213 ~ geolocation ~ selected",
-        selected
-      );
-      selected.forEach((item) => {
-        if (item.classList.contains("columnSelected"))
-          item.classList.remove("columnSelected");
-      });
-      if (selected.length) selected[0].classList.add("columnSelected");
-    },
   },
 
   computed: {
@@ -268,39 +223,35 @@ export default {
       return ((temp * 9) / 5 + 32).toFixed(0);
     },
 
-    selectDayCurrent() {
-      const selected = document.getElementsByClassName("column");
-      selected.forEach((item) => {
-        if (item.classList.contains("columnSelected"))
-          item.classList.remove("columnSelected");
+    currentTemp() {
+      this.mapClass(null);
+      this.$store.commit("updateCurrentAndCelsius", {
+        current: this.forecast.current,
+        celsius: this.toCelsius(this.forecast.current.temp),
       });
-      selected[0].classList.add("columnSelected");
     },
 
-    selectDay(item, day, index) {
+    selectDay(item, date, index) {
       if (!this.celsius.max) this.currentCelsius = this.celsius;
-      this.dayToShow = day + index + 1;
+      this.day = date.day;
+      this.month = date.month;
+      this.mapClass(index);
+      this.$store.commit("updateCurrentAndCelsius", {
+        current: item,
+        celsius: {
+          max: this.toCelsius(item.temp.max),
+          min: this.toCelsius(item.temp.min),
+        },
+      });
+    },
+
+    mapClass(index) {
       const selected = document.getElementsByClassName("column");
       selected.forEach((item) => {
         if (item.classList.contains("columnSelected"))
           item.classList.remove("columnSelected");
       });
-      if (index !== null) {
-        selected[index + 1].classList.add("columnSelected");
-        this.$store.commit("updateCurrentAndCelsius", {
-          current: item,
-          celsius: {
-            max: this.toCelsius(item.temp.max),
-            min: this.toCelsius(item.temp.min),
-          },
-        });
-      } else {
-        selected[0].classList.add("columnSelected");
-        this.$store.commit("updateCurrentAndCelsius", {
-          current: item,
-          celsius: this.toCelsius(item.temp),
-        });
-      }
+      if (index !== null) selected[index].classList.add("columnSelected");
     },
 
     toCelsius(temp) {
@@ -311,18 +262,6 @@ export default {
 </script>
 
 <style scoped>
-.container {
-  margin: 20px 30px;
-  height: 830px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.divBoxes {
-  display: flex;
-}
-
 @media (max-width: 780px) {
   .divBoxes {
     display: flex;
@@ -336,6 +275,21 @@ export default {
   .column {
     height: 100px !important;
     display: flex;
+  }
+
+  .rowTitle {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  button {
+    margin: 0px !important;
+  }
+
+  h3 {
+    margin: 20px;
   }
 
   .card {
@@ -365,6 +319,18 @@ export default {
   }
 }
 
+.container {
+  margin: 20px 30px;
+  height: 830px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.divBoxes {
+  display: flex;
+}
+
 .card {
   background-color: white;
   height: 700px;
@@ -387,24 +353,28 @@ export default {
   margin-top: 5px;
 }
 
-.title {
-  padding: 25px 20px;
-  margin-top: 5px;
-  color: #004983;
-  border-bottom: 2px solid #f2f2f2;
-}
-
 .contentCurrent {
   padding: 20px;
   display: flex;
   flex-direction: row;
   width: 100;
   border-bottom: 1px solid #f2f2f2;
+  justify-content: center;
 }
 
 .alert {
   color: red;
   margin: 0px 20px;
+}
+
+.rowTitle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #f2f2f2;
+  color: #004983;
+  padding: 25px 20px;
+  margin-top: 5px;
 }
 
 .column {
@@ -422,6 +392,22 @@ export default {
 
 .columnSelected {
   background-color: #f2f2f2;
+}
+
+button {
+  margin-right: 60px;
+  padding: 10px 40px;
+  border-radius: 10px;
+  border: none;
+  color: white;
+  background: #004983;
+  outline: none;
+  cursor: pointer;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2), 0 1px 2px 0 rgba(0, 0, 0, 0.19);
+}
+
+button:hover {
+  background: #002b4d;
 }
 
 .maxTemp {

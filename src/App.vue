@@ -25,7 +25,7 @@ export default {
 
 @media (max-width: 780px) {
   .router {
-    height: 1600px;
+    height: 1800px;
   }
 }
 
