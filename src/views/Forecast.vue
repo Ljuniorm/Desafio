@@ -144,9 +144,10 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapMutations, mapState } from "vuex";
+import { UPDATE_INFO, UPDATE_CURRENT_CELSIUS } from "../store/mutationTypes";
 import { Storage } from "../localStorage";
-import { INFOS_CITY, OPTIONS } from "../localStorage/storageKeys";
+import { INFOS_CITY, HISTORIC } from "../localStorage/storageKeys";
 import Lines from "../components/platform/Lines";
 import { kelvinInCelsius } from "../utils/utils";
 
@@ -199,8 +200,10 @@ export default {
   },
 
   methods: {
+    ...mapMutations({ UPDATE_INFO, UPDATE_CURRENT_CELSIUS }),
+
     async getInfo() {
-      this.$store.commit("updateInfos", await Storage.getItem(INFOS_CITY));
+      this.UPDATE_INFO(await Storage.getItem(INFOS_CITY));
       this.currentCelsius = this.celsius;
       this.getHistoric();
       console.log("name", this.nameCity);
@@ -219,7 +222,7 @@ export default {
 
     currentTemp() {
       this.mapClass(null);
-      this.$store.commit("updateCurrentAndCelsius", {
+      this.UPDATE_CURRENT_CELSIUS({
         current: this.forecast.current,
         celsius: this.toCelsius(this.forecast.current.temp),
       });
@@ -230,7 +233,7 @@ export default {
       this.day = date.day;
       this.month = date.month;
       this.mapClass(index);
-      this.$store.commit("updateCurrentAndCelsius", {
+      this.UPDATE_CURRENT_CELSIUS({
         current: item,
         celsius: {
           max: this.toCelsius(item.temp.max),
@@ -253,13 +256,17 @@ export default {
     },
 
     async getHistoric() {
-      const historic = await Storage.getItem(OPTIONS);
+      const historic = await Storage.getItem(HISTORIC);
       if (historic)
         historic.forEach((item) => {
           if (item.name === this.$route.params.city) {
             this.cityName = item.city;
           }
         });
+      console.log(
+        "🚀 ~ file: Forecast.vue ~ line 261 ~ historic.forEach ~ this.cityName ",
+        this.cityName
+      );
     },
   },
 };

@@ -1,25 +1,35 @@
 <template>
   <div class="appBar">
     <img img src="../../assets/logo.png" alt="" />
+    <div class="search">
+      <input
+        v-model="city"
+        type="text"
+        class="searchInput"
+        list="datalistOptions"
+        placeholder="Busque por uma cidade..."
+        @keypress.enter="searchCity"
+      />
 
-    <input
-      v-model="city"
-      type="text"
-      class="searchInput"
-      list="datalistOptions"
-      placeholder="Busque por uma cidade..."
-      @keypress.enter="searchCity"
-    />
+      <datalist id="datalistOptions">
+        <option v-for="(item, i) in historicSearch" :key="i">
+          {{ item.name }}
+        </option>
+      </datalist>
 
-    <datalist id="datalistOptions">
-      <option v-for="(item, i) in historicSearch" :key="i">
-        {{ item.name }}
-      </option>
-    </datalist>
-
-    <button @click="searchCity" type="submit" class="searchButton">
-      <i class="fas fa-search"></i>
-    </button>
+      <button @click="searchCity" type="submit" class="searchButton">
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
+    <div>
+      <button
+        v-if="$route.name === 'Forecast'"
+        class="buttonLogout"
+        @click="back"
+      >
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
+    </div>
   </div>
 </template>
 
@@ -30,7 +40,9 @@ import {
   kelvinInCelsius,
 } from "../../utils/utils";
 import { Storage } from "../../localStorage";
-import { INFOS_CITY, OPTIONS } from "../../localStorage/storageKeys";
+import { INFOS_CITY, HISTORIC } from "../../localStorage/storageKeys";
+import { mapMutations } from "vuex";
+import { UPDATE_INFO } from "../../store/mutationTypes";
 
 export default {
   data() {
@@ -47,6 +59,8 @@ export default {
   },
 
   methods: {
+    ...mapMutations({ UPDATE_INFO }),
+
     async searchCity() {
       if (this.$route.params.city === this.city) return;
       for (let i = 0; i < this.historicSearch.length; i++) {
@@ -68,14 +82,14 @@ export default {
         lng: this.coordinates.lng,
         city: this.geolocation.results[0].formatted_address,
       });
-      await Storage.setItem(OPTIONS, this.historicSearch);
+      await Storage.setItem(HISTORIC, this.historicSearch);
       this.getForecast();
     },
 
     async getForecast() {
       getForecast(this.coordinates.lat, this.coordinates.lng).then(
         async (response) => {
-          this.$store.commit("updateInfos", {
+          this.UPDATE_INFO({
             forecast: response.data,
             celsius: kelvinInCelsius(response.data.current.temp),
             days: response.data.daily.map((day) => {
@@ -103,10 +117,11 @@ export default {
         }
       );
       this.$router.push(`/forecast/${this.city}`);
+      this.city = "";
     },
 
     async getHistoric() {
-      const historic = await Storage.getItem(OPTIONS);
+      const historic = await Storage.getItem(HISTORIC);
       if (historic) this.historicSearch = historic;
     },
 
@@ -118,6 +133,10 @@ export default {
         year: date.getFullYear(),
       };
     },
+
+    back() {
+      this.$router.push({ name: "Coordinates" });
+    },
   },
 };
 </script>
@@ -128,7 +147,7 @@ export default {
   height: 90px;
   box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.2);
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
 }
 
@@ -156,6 +175,26 @@ body {
   color: #00b4cc;
 }
 
+.buttonLogout {
+  margin-right: 60px;
+  width: 40px;
+  height: 36px;
+  border-radius: 10px;
+  border: none;
+  color: white;
+  background: #004983;
+  outline: none;
+  cursor: pointer;
+}
+
+.buttonLogout:hover {
+  background: #002b4d;
+}
+
+.search {
+  display: flex;
+}
+
 .searchButton {
   width: 40px;
   height: 36px;
@@ -168,5 +207,25 @@ body {
   font-size: 20px;
   margin-right: 30px;
   outline: none;
+}
+
+@media (max-width: 780px) {
+  .appBar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .buttonLogout {
+    margin-right: 0px;
+  }
+
+  .searchInput {
+    width: 200px;
+  }
+
+  img {
+    display: none;
+  }
 }
 </style>

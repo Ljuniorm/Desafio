@@ -11,29 +11,67 @@
           placeholder="Longitude"
         />
       </form>
-      <button @click="getForecast">Buscar</button>
+      <b v-if="alert"
+        ><i class="fas fa-exclamation-triangle alert"></i>Coordenadas
+        Inválidas</b
+      >
+      <button @click="getGeolocationReverse">Buscar</button>
     </div>
   </div>
 </template>
 
 <script>
+import { mapMutations } from "vuex";
 import { Storage } from "../localStorage";
-import { INFOS_CITY } from "../localStorage/storageKeys";
-import { getForecast, kelvinInCelsius } from "../utils/utils";
+import { INFOS_CITY, HISTORIC } from "../localStorage/storageKeys";
+import { UPDATE_INFO } from "../store/mutationTypes";
+import {
+  getForecast,
+  getGeolocationReverse,
+  kelvinInCelsius,
+} from "../utils/utils";
 export default {
   data() {
     return {
       coordinates: { lat: "", lng: "" },
+      historicSearch: [],
+      cityName: "",
+      alert: false,
     };
   },
 
+  created() {
+    this.getHistoric();
+  },
+
   methods: {
+    ...mapMutations({ UPDATE_INFO }),
+
+    async getGeolocationReverse() {
+      await getGeolocationReverse(
+        Number(this.coordinates.lat),
+        Number(this.coordinates.lng)
+      ).then(async (response) => {
+        if (response.data.results.length)
+          this.cityName = response.data.results[0].formatted_address;
+      });
+      if (!this.cityName) return (this.alert = true);
+      this.historicSearch.push({
+        name: this.cityName,
+        lat: this.coordinates.lat,
+        lng: this.coordinates.lng,
+        city: this.cityName,
+      });
+      await Storage.setItem(HISTORIC, this.historicSearch);
+      this.getForecast();
+    },
+
     async getForecast() {
       getForecast(
         Number(this.coordinates.lat),
         Number(this.coordinates.lng)
       ).then(async (response) => {
-        this.$store.commit("updateInfos", {
+        this.UPDATE_INFO({
           forecast: response.data,
           celsius: kelvinInCelsius(response.data.current.temp),
           days: response.data.daily.map((day) => {
@@ -59,7 +97,15 @@ export default {
           current: response.data.current,
         });
       });
-      this.$router.push(`/forecast/${this.city}`);
+      this.$router.push(`/forecast/${this.cityName}`);
+    },
+
+    async getHistoric() {
+      this.historicSearch = await Storage.getItem(HISTORIC);
+      console.log(
+        "🚀 ~ file: Coordinates.vue ~ line 99 ~ getHistoric ~ this.historicSearch",
+        this.historicSearch
+      );
     },
 
     unixToDate(unix) {
@@ -125,6 +171,10 @@ h2 {
   color: #00b4cc;
   margin-bottom: 30px;
   margin-top: 20px;
+}
+
+b {
+  color: red;
 }
 
 form {
